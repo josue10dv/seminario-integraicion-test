@@ -55,3 +55,28 @@ class BookViewSet(viewsets.ModelViewSet):
             {"message": "Libro eliminado exitosamente"},
             status=status.HTTP_204_NO_CONTENT
         )
+        
+    def calculate_avarage(self, request, *args, **kwargs):
+        numeros = request.data.get('numeros', [])
+        if len(numeros) == 0:
+            return Response(
+                {"error": "La lista de números no puede estar vacía."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        total_prestamos = 0
+        for num in numeros:
+            total_prestamos += num
+        promedio = total_prestamos / len(numeros)
+        return Response({"promedio": promedio}, status=status.HTTP_200_OK)
+    
+    def calculate_fine(self, request, *args, **kwargs):
+        dias_atraso = request.data.get('dias_atraso', 0)
+        multa_por_dia = request.data.get('multa_por_dia', 0)
+        msg = ""
+        if dias_atraso <= 0:
+            msg = "No hay multa, el libro fue devuelta a tiempo."
+        else:
+            multa = dias_atraso * multa_por_dia
+            msg = f"La multa es de ${multa} por {dias_atraso} días de atraso."
+        return Response({"mensaje": msg}, status=status.HTTP_200_OK)
+        
